@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorry, Ammu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Catamaran:wght@300;400;500;600&family=Noto+Sans+Tamil:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink-night:#080a1c;
+  --indigo:#0a0e27;
+  --indigo-2:#131a3d;
+  --maroon:#7a1f3d;
+  --rose:#c2185b;
+  --rose-bright:#e0457f;
+  --gold:#f5c518;
+  --gold-soft:#e8c87a;
+  --moon:#fff6e0;
+  --moon-glow:rgba(255,246,224,0.55);
+  --parchment:#f3e6c9;
+  --text-soft:rgba(243,232,214,0.86);
+  --text-faint:rgba(243,232,214,0.58);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  background:var(--ink-night);
+  color:var(--text-soft);
+  font-family:'Cormorant Garamond', serif;
+  overflow-x:hidden;
+  cursor:default;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+}
+
+.scroll-container{
+  height:100vh;
+  overflow-y:scroll;
+  scroll-snap-type:y proximity;
+}
+
+section.page{
+  position:relative;
+  min-height:100vh;
+  width:100%;
+  scroll-snap-align:start;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  padding:6vh 6vw;
+}
+
+/* ===== Shared background layers ===== */
+.sky{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(122,31,61,0.35), transparent 60%),
+    linear-gradient(180deg, var(--ink-night) 0%, var(--indigo) 45%, var(--indigo-2) 100%);
+  z-index:0;
+}
+
+.vignette{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse 70% 70% at 50% 50%, transparent 40%, rgba(0,0,0,0.55) 100%);
+  z-index:5;
+  pointer-events:none;
+}
+
+.stars{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+}
+.star{
+  position:absolute;
+  width:2px;
+  height:2px;
+  background:var(--moon);
+  border-radius:50%;
+  animation:twinkle 3.5s ease-in-out infinite;
+  box-shadow:0 0 4px rgba(255,246,224,0.8);
+}
+@keyframes twinkle{
+  0%,100%{opacity:0.15; transform:scale(1);}
+  50%{opacity:1; transform:scale(1.4);}
+}
+
+.moon{
+  position:absolute;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #fffdf5, var(--moon) 55%, #e8d9a8 100%);
+  box-shadow:0 0 60px 20px var(--moon-glow), 0 0 140px 60px rgba(255,246,224,0.18);
+  animation:moon-pulse 6s ease-in-out infinite;
+  z-index:1;
+}
+@keyframes moon-pulse{
+  0%,100%{box-shadow:0 0 60px 20px var(--moon-glow), 0 0 140px 60px rgba(255,246,224,0.18);}
+  50%{box-shadow:0 0 80px 30px var(--moon-glow), 0 0 180px 80px rgba(255,246,224,0.26);}
+}
+
+.petals{
+  position:absolute;
+  inset:0;
+  z-index:3;
+  pointer-events:none;
+  overflow:hidden;
+}
+.petal{
+  position:absolute;
+  top:-5%;
+  width:14px;
+  height:14px;
+  background:radial-gradient(circle at 30% 30%, var(--rose-bright), var(--maroon) 80%);
+  border-radius:0% 70% 0% 70%;
+  opacity:0.85;
+  animation-name:fall;
+  animation-timing-function:linear;
+  animation-iteration-count:infinite;
+}
+@keyframes fall{
+  0%{transform:translateY(-10vh) translateX(0) rotate(0deg); opacity:0;}
+  8%{opacity:0.85;}
+  100%{transform:translateY(110vh) translateX(var(--drift,40px)) rotate(380deg); opacity:0.2;}
+}
+
+.particles{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+}
+.spark{
+  position:absolute;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:var(--gold);
+  box-shadow:0 0 8px 2px rgba(245,197,24,0.7);
+  animation:drift-up linear infinite;
+  opacity:0;
+}
+@keyframes drift-up{
+  0%{transform:translateY(0) translateX(0); opacity:0;}
+  10%{opacity:0.8;}
+  90%{opacity:0.4;}
+  100%{transform:translateY(-90vh) translateX(20px); opacity:0;}
+}
+
+/* ===== Content reveal ===== */
+.content{
+  position:relative;
+  z-index:10;
+  max-width:880px;
+  width:100%;
+  text-align:center;
+}
+
+.reveal{
+  opacity:0;
+  transform:translateY(28px);
+  transition:opacity 1.1s cubic-bezier(.22,.61,.36,1), transform 1.1s cubic-bezier(.22,.61,.36,1);
+}
+.reveal.in-view{
+  opacity:1;
+  transform:translateY(0);
+}
+.delay-1{transition-delay:0.15s;}
+.delay-2{transition-delay:0.35s;}
+.delay-3{transition-delay:0.55s;}
+.delay-4{transition-delay:0.75s;}
+
+.tamil{
+  font-family:'Noto Sans Tamil', 'Catamaran', sans-serif;
+}
+
+.eng-meaning{
+  font-style:italic;
+  color:var(--text-faint);
+  font-size:0.95rem;
+  letter-spacing:0.02em;
+}
+
+h1, h2, .display{
+  font-family:'Playfair Display', serif;
+  font-weight:600;
+  color:var(--moon);
+  text-shadow:0 0 28px rgba(255,246,224,0.25);
+}
+
+.eyebrow{
+  font-family:'Catamaran', sans-serif;
+  letter-spacing:0.32em;
+  text-transform:uppercase;
+  font-size:0.72rem;
+  color:var(--gold-soft);
+  margin-bottom:1.4rem;
+  opacity:0.85;
+}
+
+p.lede{
+  font-size:1.25rem;
+  line-height:1.85;
+  color:var(--text-soft);
+  max-width:620px;
+  margin:1.6rem auto;
+}
+
+.tamil-line{
+  font-size:1.35rem;
+  line-height:2.1;
+  color:var(--parchment);
+  max-width:680px;
+  margin:1.4rem auto 0.5rem;
+}
+
+/* ===== Letter reveal title ===== */
+.letters span{
+  display:inline-block;
+  opacity:0;
+  transform:translateY(18px) rotate(2deg);
+  animation:letter-in 0.7s cubic-bezier(.22,.61,.36,1) forwards;
+}
+@keyframes letter-in{
+  to{opacity:1; transform:translateY(0) rotate(0deg);}
+}
+
+/* ===== Buttons ===== */
+.btn{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:0.6rem;
+  margin-top:2.6rem;
+  padding:0.95rem 2.4rem;
+  font-family:'Catamaran', sans-serif;
+  font-size:1.02rem;
+  font-weight:500;
+  letter-spacing:0.03em;
+  color:var(--moon);
+  background:linear-gradient(135deg, rgba(194,24,91,0.35), rgba(245,197,24,0.18));
+  border:1px solid rgba(245,197,24,0.45);
+  border-radius:999px;
+  backdrop-filter:blur(6px);
+  cursor:pointer;
+  overflow:hidden;
+  transition:transform 0.35s cubic-bezier(.22,.61,.36,1), box-shadow 0.35s, border-color 0.35s;
+  box-shadow:0 0 0 0 rgba(245,197,24,0.4);
+}
+.btn:hover{
+  transform:translateY(-3px) scale(1.035);
+  border-color:rgba(245,197,24,0.85);
+  box-shadow:0 8px 30px -6px rgba(194,24,91,0.55), 0 0 22px rgba(245,197,24,0.35);
+}
+.btn:active{transform:translateY(-1px) scale(0.985);}
+.btn .ripple{
+  position:absolute;
+  border-radius:50%;
+  background:rgba(245,197,24,0.5);
+  transform:scale(0);
+  animation:ripple-go 0.65s ease-out forwards;
+  pointer-events:none;
+}
+@keyframes ripple-go{
+  to{transform:scale(3.2); opacity:0;}
+}
+.mini-petal-burst{
+  position:absolute;
+  width:8px;height:8px;
+  border-radius:0% 70% 0% 70%;
+  background:var(--rose-bright);
+  pointer-events:none;
+  animation:burst-fly 0.7s ease-out forwards;
+}
+@keyframes burst-fly{
+  to{transform:translate(var(--bx), var(--by)) rotate(260deg) scale(0.3); opacity:0;}
+}
+
+/* ===== Section number / progress moon ===== */
+.crescent-progress{
+  position:fixed;
+  top:50%;
+  right:22px;
+  transform:translateY(-50%);
+  width:34px;
+  height:34px;
+  z-index:100;
+  pointer-events:none;
+  opacity:0.9;
+}
+.crescent-progress svg{width:100%;height:100%;}
+
+.section-tag{
+  position:fixed;
+  top:26px;
+  left:28px;
+  z-index:100;
+  font-family:'Catamaran', sans-serif;
+  font-size:0.7rem;
+  letter-spacing:0.28em;
+  text-transform:uppercase;
+  color:var(--gold-soft);
+  opacity:0.7;
+  pointer-events:none;
+}
+
+/* ===== Music toggle ===== */
+.music-toggle{
+  position:fixed;
+  bottom:26px;
+  right:26px;
+  z-index:100;
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  border:1px solid rgba(245,197,24,0.4);
+  background:rgba(10,14,39,0.6);
+  backdrop-filter:blur(6px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--gold-soft);
+  cursor:pointer;
+  transition:transform 0.3s, border-color 0.3s;
+}
+.music-toggle:hover{transform:scale(1.08); border-color:rgba(245,197,24,0.8);}
+.music-toggle svg{width:18px;height:18px;}
+.music-toggle.muted svg .wave{opacity:0.25;}
+
+/* ===================== PAGE 1 ===================== */
+#page-1 h1{
+  font-size:clamp(2.2rem, 6vw, 4.2rem);
+  line-height:1.15;
+}
+#page-1 .moon-hero{
+  width:120px; height:120px;
+  top:8%; left:50%;
+  transform:translateX(-50%);
+}
+
+/* ===================== PAGE 2 ===================== */
+#page-2 .rose-bloom{
+  width:140px;
+  height:140px;
+  margin:0 auto 1.6rem;
+  position:relative;
+}
+.rose-bloom .petal-layer{
+  position:absolute;
+  inset:0;
+  border-radius:50% 0% 50% 50%;
+  background:radial-gradient(circle at 35% 35%, var(--rose-bright), var(--maroon) 75%);
+  transform-origin:center;
+  animation:bloom-open 2.4s ease-out forwards;
+  opacity:0;
+}
+@keyframes bloom-open{
+  0%{transform:scale(0.1) rotate(0deg); opacity:0;}
+  60%{opacity:0.9;}
+  100%{transform:scale(1) rotate(var(--rot,0deg)); opacity:0.85;}
+}
+#page-2 h2{font-size:clamp(1.8rem, 4.4vw, 2.8rem); line-height:1.3;}
+#page-2 .apology-text{
+  text-align:left;
+  max-width:640px;
+  margin:2rem auto;
+  font-size:1.12rem;
+  line-height:1.9;
+  color:var(--text-soft);
+}
+
+/* ===================== PAGE 3 ===================== */
+.memory-grid{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:1.6rem;
+  max-width:880px;
+  margin:2.2rem auto 0;
+}
+.memory-card{
+  position:relative;
+  aspect-ratio:3/4;
+  border-radius:14px;
+  background:
+    linear-gradient(165deg, rgba(122,31,61,0.55), rgba(10,14,39,0.85)),
+    radial-gradient(circle at 70% 20%, rgba(245,197,24,0.25), transparent 60%);
+  border:1px solid rgba(245,197,24,0.25);
+  padding:1.2rem;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  transition:transform 0.5s cubic-bezier(.22,.61,.36,1), box-shadow 0.5s;
+  overflow:hidden;
+}
+.memory-card::before{
+  content:'';
+  position:absolute;
+  top:14px; left:50%;
+  transform:translateX(-50%);
+  width:28px;height:28px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #fffdf5, var(--moon) 60%, #e8d9a8 100%);
+  box-shadow:0 0 18px 6px var(--moon-glow);
+  opacity:0.55;
+}
+.memory-card:hover{
+  transform:translateY(-8px) rotate(-1.2deg) scale(1.03);
+  box-shadow:0 18px 40px -10px rgba(194,24,91,0.5);
+}
+.memory-card .cap{
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic;
+  font-size:1.05rem;
+  color:var(--parchment);
+  line-height:1.5;
+}
+@media (max-width:760px){
+  .memory-grid{grid-template-columns:1fr; max-width:340px;}
+}
+
+/* ===================== PAGE 4 ===================== */
+.split-layout{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:3rem;
+  align-items:center;
+  max-width:980px;
+  margin:0 auto;
+  text-align:left;
+}
+.wilt-rose-wrap{
+  display:flex;
+  justify-content:center;
+}
+.wilt-rose{
+  width:160px;height:200px;
+  position:relative;
+}
+.wilt-rose svg{width:100%;height:100%;}
+.reasons-list{
+  list-style:none;
+  counter-reset:reason;
+}
+.reasons-list li{
+  counter-increment:reason;
+  position:relative;
+  padding-left:3.2rem;
+  margin-bottom:1.8rem;
+  font-size:1.18rem;
+  line-height:1.6;
+  color:var(--text-soft);
+}
+.reasons-list li::before{
+  content:counter(reason, decimal-leading-zero);
+  position:absolute;
+  left:0; top:-0.2rem;
+  font-family:'Playfair Display', serif;
+  font-size:1.5rem;
+  color:var(--gold);
+  opacity:0.85;
+}
+@media (max-width:760px){
+  .split-layout{grid-template-columns:1fr; text-align:center;}
+  .reasons-list li{text-align:left;}
+}
+
+/* ===================== PAGE 5 ===================== */
+.orbit-wrap{
+  position:relative;
+  width:200px;height:200px;
+  margin:0 auto 1.6rem;
+}
+.orbit-rose{
+  position:absolute;
+  inset:0;
+  margin:auto;
+  width:90px;height:90px;
+  border-radius:50% 0% 50% 50%;
+  background:radial-gradient(circle at 35% 35%, var(--rose-bright), var(--maroon) 80%);
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 50px 14px rgba(194,24,91,0.45);
+  animation:rose-glow 4s ease-in-out infinite;
+}
+@keyframes rose-glow{
+  0%,100%{box-shadow:0 0 40px 10px rgba(194,24,91,0.4);}
+  50%{box-shadow:0 0 60px 20px rgba(194,24,91,0.6);}
+}
+.orbit-particle{
+  position:absolute;
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--gold);
+  box-shadow:0 0 10px 3px rgba(245,197,24,0.7);
+  top:50%; left:50%;
+  animation:orbit-spin linear infinite;
+}
+@keyframes orbit-spin{
+  from{transform:rotate(0deg) translateX(var(--r,90px)) rotate(0deg);}
+  to{transform:rotate(360deg) translateX(var(--r,90px)) rotate(-360deg);}
+}
+#page-5 h2{font-size:clamp(1.9rem, 4.8vw, 3rem);}
+.means-list{
+  max-width:600px;
+  margin:1.8rem auto 0;
+  text-align:left;
+  font-size:1.14rem;
+  line-height:1.9;
+  color:var(--text-soft);
+}
+.means-list em{
+  color:var(--gold-soft);
+  font-style:italic;
+}
+
+/* ===================== PAGE 6 ===================== */
+.promise-line{
+  font-family:'Cormorant Garamond', serif;
+  font-size:1.3rem;
+  font-style:italic;
+  color:var(--parchment);
+  max-width:560px;
+  margin:0 auto;
+  white-space:nowrap;
+  overflow:hidden;
+  border-right:2px solid var(--gold);
+  width:0;
+  animation:type-in 2.4s steps(40, end) forwards, blink-caret 0.8s step-end infinite;
+}
+.promise-block{margin-bottom:2.4rem;}
+.promise-block:nth-child(1) .promise-line{animation-delay:0.2s;}
+.promise-block:nth-child(2) .promise-line{animation-delay:2.8s;}
+.promise-block:nth-child(3) .promise-line{animation-delay:5.4s;}
+@keyframes type-in{
+  from{width:0;}
+  to{width:100%;}
+}
+@keyframes blink-caret{
+  50%{border-color:transparent;}
+}
+.divider-rose{
+  width:60px; height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin:0 auto 0.6rem;
+  position:relative;
+}
+.divider-rose::after{
+  content:'❀';
+  position:absolute;
+  left:50%; top:-9px;
+  transform:translateX(-50%);
+  color:var(--gold);
+  font-size:0.8rem;
+}
+@media (max-width:600px){
+  .promise-line{white-space:normal; border-right:none; width:auto; animation:none; opacity:0;}
+  .promise-line.in-view{opacity:1; transition:opacity 1.2s ease;}
+}
+
+/* ===================== PAGE 7 ===================== */
+.letter-card{
+  position:relative;
+  max-width:680px;
+  margin:0 auto;
+  padding:3.2rem 2.6rem;
+  background:linear-gradient(165deg, rgba(243,230,201,0.07), rgba(243,230,201,0.02));
+  border:1px solid rgba(245,197,24,0.3);
+  border-radius:6px;
+  box-shadow:0 30px 80px -20px rgba(0,0,0,0.6), inset 0 0 60px rgba(245,197,24,0.06);
+}
+.letter-card::before{
+  content:'';
+  position:absolute;
+  top:50%; left:50%;
+  width:260px; height:260px;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle, rgba(255,246,224,0.06), transparent 70%);
+  border-radius:50%;
+  pointer-events:none;
+}
+.couplet{
+  margin-bottom:2.2rem;
+  position:relative;
+}
+.couplet .tamil-line{font-size:1.3rem; margin-bottom:0.5rem;}
+.letter-sign{
+  margin-top:2rem;
+  font-family:'Playfair Display', serif;
+  font-style:italic;
+  color:var(--gold-soft);
+  font-size:1.1rem;
+}
+
+/* ===================== PAGE 8 ===================== */
+#page-8 h2{
+  font-size:clamp(2rem, 5.4vw, 3.4rem);
+  margin-bottom:0.6rem;
+}
+.final-buttons{
+  display:flex;
+  gap:1.4rem;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:2.2rem;
+}
+.final-message{
+  margin-top:2.4rem;
+  font-size:1.3rem;
+  font-style:italic;
+  color:var(--parchment);
+  min-height:2.4em;
+}
+.signature{
+  margin-top:3rem;
+  font-family:'Playfair Display', serif;
+  font-style:italic;
+  font-size:1.2rem;
+  color:var(--gold-soft);
+  opacity:0;
+  transition:opacity 1.2s ease;
+}
+.signature.show{opacity:1;}
+
+.confetti-piece{
+  position:fixed;
+  width:8px;height:8px;
+  z-index:200;
+  pointer-events:none;
+  border-radius:0% 70% 0% 70%;
+  animation:confetti-fall linear forwards;
+}
+@keyframes confetti-fall{
+  to{transform:translateY(100vh) translateX(var(--cx,0)) rotate(720deg); opacity:0;}
+}
+
+::-webkit-scrollbar{width:0;background:transparent;}
+</style>
+</head>
+<body>
+
+<div class="section-tag" id="sectionTag">I — Opening</div>
+
+<div class="crescent-progress">
+  <svg viewBox="0 0 40 40">
+    <defs>
+      <mask id="crescentMask">
+        <rect width="40" height="40" fill="white"/>
+        <circle id="progressCircle" cx="20" cy="20" r="13" fill="black" stroke="black" stroke-width="0"/>
+      </mask>
+    </defs>
+    <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(245,197,24,0.25)" stroke-width="1"/>
+    <circle id="moonFill" cx="20" cy="20" r="13" fill="#f5c518" opacity="0.85" />
+    <circle cx="26" cy="16" r="11" fill="#0a0e27" />
+  </svg>
+</div>
+
+<button class="music-toggle muted" id="musicToggle" aria-label="Toggle ambience">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+    <path d="M9 18V5l12-2v13" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="6" cy="18" r="3"/>
+    <circle cx="18" cy="16" r="3"/>
+    <g class="wave">
+      <path d="M21 3a9 9 0 0 1 0 12" stroke-linecap="round" opacity="0.6"/>
+    </g>
+  </svg>
+</button>
+
+<div class="scroll-container" id="scrollContainer">
+
+  <!-- ================= PAGE 1 ================= -->
+  <section class="page" id="page-1">
+    <div class="sky"></div>
+    <div class="stars" data-stars="40"></div>
+    <div class="moon moon-hero"></div>
+    <div class="petals" data-petals="14"></div>
+    <div class="vignette"></div>
+    <div class="content">
+      <div class="eyebrow reveal">a letter, told slowly</div>
+      <h1 class="letters" id="titleLetters">Ammu... I'm Sorry 🌹🌙</h1>
+      <p class="tamil tamil-line reveal delay-2" style="margin-top:2.2rem;">வானத்தில் நிலா இருந்தாலும், நீ இல்லாம என் வாழ்க்கையில் வெளிச்சமே இல்லை.</p>
+      <p class="eng-meaning reveal delay-3">"Even with the moon in the sky, without you there's no light in my life."</p>
+      <button class="btn reveal delay-4" data-next="page-2">Open My Heart <span>→</span></button>
+    </div>
+  </section>
+
+  <!-- ================= PAGE 2 ================= -->
+  <section class="page" id="page-2">
+    <div class="sky"></div>
+    <div class="stars" data-stars="26"></div>
+    <div class="petals" data-petals="10"></div>
+    <div class="vignette"></div>
+    <div class="content">
+      <div class="rose-bloom reveal" id="roseBloom"></div>
+      <h2 class="reveal delay-1">Every rose has thorns, I know I became one.</h2>
+      <div class="apology-text reveal delay-2">
+        <p style="margin-bottom:1.1rem;">I keep replaying it — the moment my words turned sharp, the silence I let sit too long, the way I made you feel small when you've only ever made me feel like more. That wasn't you. That was me, and I own it completely.</p>
+        <p>You deserved patience and I gave you pride. You deserved my full attention and I gave you excuses. I'm not writing this to be forgiven on the spot — I'm writing it because you deserve to know I see exactly what I did, and I'm not looking away from it.</p>
+      </div>
+      <p class="tamil tamil-line reveal delay-3">தவறு செய்தவன் நான், ஆனா உன்னை இழக்க பயப்படுறவனும் நான்தான்.</p>
+      <p class="eng-meaning reveal delay-3">"I'm the one who made the mistake, but I'm also the one afraid of losing you."</p>
+      <button class="btn reveal delay-4" data-next="page-3">But let me explain <span>→</span></button>
+    </div>
+  </section>
+
+  <!-- ================= PAGE 3 ================= -->
+  <section class="page" id="page-3">
+    <div class="sky"></div>
+    <div class="stars" data-stars="22"></div>
+    <div class="petals" data-petals="8"></div>
+    <div class="vignette"></div>
+    <div class="content" style="max-width:980px;">
+      <div class="eyebrow reveal">memories we made</div>
+      <h2 class="reveal delay-1" style="font-size:clamp(1.8rem,4.4vw,2.6rem);">Every one of these, I'd live again.</h2>
+      <div class="memory-grid reveal delay-2">
+        <div class="memory-card"><p class="cap">The night we lost track of time talking about nothing and everything.</p></div>
+        <div class="memory-card"><p class="cap">That terrible movie we still quote on purpose.</p></div>
+        <div class="memory-card"><p class="cap">The first time you laughed so hard you had to sit down.</p></div>
+      </div>
+      <p class="tamil tamil-line reveal delay-3">நினைவுகள் மறையாது, நீ இல்லாத நாட்களில் கூட நீ என் நினைவில் இருந்தாய்.</p>
+      <p class="eng-meaning reveal delay-3">"Memories don't fade — even on days without you, you stayed in my thoughts."</p>
+      <button class="btn reveal delay-4" data-next="page-4">I miss those days <span>→</span></button>
+    </div>
+  </section>
+
+  <!-- ================= PAGE 4 ================= -->
+  <section class="page" id="page-4">
+    <div class="sky"></div>
+    <div class="stars" data-stars="18"></div>
+    <div class="vignette"></div>
+    <div class="content" style="max-width:980px;">
+      <div class="eyebrow reveal">why i'm sorry</div>
+      <div class="split-layout reveal delay-1">
+        <div class="wilt-rose-wrap">
+          <div class="wilt-rose" id="wiltRose">
+            <svg viewBox="0 0 120 160">
+              <path id="stemPath" d="M60 160 C60 120, 60 100, 60 80" stroke="#3d6b4a" stroke-width="3" fill="none"/>
+              <g id="petalGroup" transform="translate(60,55)">
+                <path class="wpetal" d="M0,0 C-22,-8 -28,-30 -8,-42 C5,-50 18,-40 14,-22 C12,-12 6,-4 0,0 Z" fill="#8f2546" />
+                <path class="wpetal" d="M0,0 C22,-8 28,-30 8,-42 C-5,-50 -18,-40 -14,-22 C-12,-12 -6,-4 0,0 Z" fill="#a32d52" />
+                <path class="wpetal" d="M0,0 C-4,-26 0,-44 0,-50 C0,-44 4,-26 0,0 Z" fill="#c2185b" />
+              </g>
+            </svg>
+          </div>
+        </div>
+        <ol class="reasons-list">
+          <li>For not listening when you needed me to simply listen.</li>
+          <li>For hurting the trust you handed me so carefully.</li>
+          <li>For the silence I let stretch out after, instead of reaching for you.</li>
+        </ol>
+      </div>
+      <p class="tamil tamil-line reveal delay-2" style="margin-top:2.6rem;">மன்னிப்பு கேட்க வார்த்தைகள் போதாது, ஆனா என் மனசு முழுக்க உண்மை.</p>
+      <p class="eng-meaning reveal delay-3">"Words aren't enough to ask forgiveness, but my heart is completely honest."</p>
+      <button class="btn reveal delay-4" data-next="page-5">I want to make it right <span>→</span></button>
+    </div>
+  </section>
+
+  <!-- ================= PAGE 5 ================= -->
+  <section class="page" id="page-5">
+    <div class="sky"></div>
+    <div class="stars" data-stars="30"></div>
+    <div class="vignette"></div>
+    <div class="content">
+      <div class="orbit-wrap reveal">
+        <div class="orbit-rose"></div>
+        <div class="orbit-particle" style="--r:90px; animation-duration:6s;"></div>
+        <div class="orbit-particle" style="--r:70px; animation-duration:4.5s; animation-direction:reverse;"></div>
+        <div class="orbit-particle" style="--r:100px; animation-duration:8s;"></div>
+      </div>
+      <h2 class="reveal delay-1">You are my moonlight on the darkest nights.</h2>
+      <div class="means-list reveal delay-2">
+        <p style="margin-bottom:0.9rem;">You mean <em>[her smile]</em> showing up uninvited in the middle of a hard day.</p>
+        <p style="margin-bottom:0.9rem;">You mean <em>[her laugh]</em> that I'd choose over silence every single time.</p>
+        <p>You mean the kind of calm I didn't know I was missing until you were in the room.</p>
+      </div>
+      <p class="tamil tamil-line reveal delay-3">நீ என் வாழ்க்கையில் நிலா மாதிரி — தூரம் இருந்தாலும் வெளிச்சம் தருற.</p>
+      <p class="eng-meaning reveal delay-3">"You're like the moon in my life — even from afar, you give light."</p>
+      <button class="btn reveal delay-4" data-next="page-6">Here's my promise <span>→</span></button>
+    </div>
+  </section>
+
+  <!-- ================= PAGE 6 ================= -->
+  <section class="page" id="page-6">
+    <div class="sky"></div>
+    <div class="stars" data-stars="20"></div>
+    <div class="petals" data-petals="6"></div>
+    <div class="vignette"></div>
+    <div class="content">
+      <div class="eyebrow reveal">my promise</div>
+      <div class="promise-block reveal delay-1">
+        <p class="promise-line">I will listen first, before I speak.</p>
+      </div>
+      <div class="divider-rose"></div>
+      <div class="promise-block reveal delay-2">
+        <p class="promise-line">I will choose you over my pride, every time.</p>
+      </div>
+      <div class="divider-rose"></div>
+      <div class="promise-block reveal delay-3">
+        <p class="promise-line">I will show up for the small days, not just the big ones.</p>
+      </div>
+      <p class="tamil tamil-line reveal delay-4" style="margin-top:1rem;">இனிமேல் உன் கண்ணீர் இல்ல, உன் சிரிப்பு மட்டும் நான் பாக்க விரும்புறேன்.</p>
+      <p class="eng-meaning reveal delay-4">"From now on, no more tears of yours — I only want to see your smile."</p>
+      <button class="btn reveal delay-4" data-next="page-7">Will you forgive me? <span>→</span></button>
+    </div>
+  </section>
+
+  <!-- ================= PAGE 7 ================= -->
+  <section class="page" id="page-7">
+    <div class="sky"></div>
+    <div class="stars" data-stars="24"></div>
+    <div class="petals" data-petals="8"></div>
+    <div class="vignette"></div>
+    <div class="content">
+      <div class="eyebrow reveal">a letter for you</div>
+      <div class="letter-card reveal delay-1">
+        <div class="couplet reveal delay-1">
+          <p class="tamil tamil-line">ரோஜா பூவுக்கு முள் இருந்தாலும், அதன் வாசம் தான் என்னை உனக்கு நெருங்க வச்சது.</p>
+          <p class="eng-meaning">"Even though the rose has thorns, its fragrance is what drew me close to you."</p>
+        </div>
+        <div class="couplet reveal delay-2">
+          <p class="tamil tamil-line">நிலா தனியா இருந்தாலும் அழகா இருக்கும், ஆனா நீ இருந்தா என் வாழ்க்கை முழுசா அழகா மாறும்.</p>
+          <p class="eng-meaning">"The moon looks beautiful even alone, but with you my whole life becomes beautiful."</p>
+        </div>
+        <div class="couplet reveal delay-3">
+          <p class="tamil tamil-line">சத்தியமா சொல்றேன் ஆம்மு, உன்ன புண்படுத்தனும்னு நான் நினைச்சதே இல்ல.</p>
+          <p class="eng-meaning">"I promise, Ammu, I never meant to hurt you."</p>
+        </div>
+        <div class="couplet reveal delay-4">
+          <p class="tamil tamil-line">உன் கோபமும் எனக்கு பிடிக்கும், ஆனா உன் கண்ணீர் மட்டும் தாங்க முடியாது.</p>
+          <p class="eng-meaning">"I even love your anger, but I can't bear your tears."</p>
+        </div>
+        <p class="letter-sign reveal delay-4">— always yours, even when I forget to show it</p>
+      </div>
+      <button class="btn reveal delay-4" data-next="page-8">One last thing <span>→</span></button>
+    </div>
+  </section>
+
+  <!-- ================= PAGE 8 ================= -->
+  <section class="page" id="page-8">
+    <div class="sky"></div>
+    <div class="stars" data-stars="34"></div>
+    <div class="moon" style="width:150px;height:150px; top:6%; left:50%; transform:translateX(-50%);"></div>
+    <div class="petals" data-petals="22" id="finalPetals"></div>
+    <div class="particles" data-sparks="16"></div>
+    <div class="vignette"></div>
+    <div class="content">
+      <div class="eyebrow reveal">final</div>
+      <h2 class="reveal delay-1">I'm sorry, Ammu.<br>Will you forgive me?</h2>
+      <div class="final-buttons reveal delay-2">
+        <button class="btn" id="yesBtn">Yes, I forgive you <span>🌹</span></button>
+        <button class="btn" id="waitBtn" style="background:linear-gradient(135deg, rgba(122,31,61,0.25), rgba(10,14,39,0.4));">I need more time <span>🌙</span></button>
+      </div>
+      <p class="final-message tamil" id="finalMessage"></p>
+      <p class="signature" id="signature">Forever yours, [Your Name] 🌹🌙</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// ---------- Populate stars ----------
+document.querySelectorAll('.stars').forEach(starField=>{
+  const n = parseInt(starField.dataset.stars,10);
+  for(let i=0;i<n;i++){
+    const s = document.createElement('div');
+    s.className='star';
+    s.style.top = Math.random()*100+'%';
+    s.style.left = Math.random()*100+'%';
+    s.style.animationDelay = (Math.random()*3.5)+'s';
+    s.style.animationDuration = (2.5+Math.random()*3)+'s';
+    starField.appendChild(s);
+  }
+});
+
+// ---------- Populate petals ----------
+document.querySelectorAll('.petals').forEach(field=>{
+  const n = parseInt(field.dataset.petals,10);
+  for(let i=0;i<n;i++){
+    const p = document.createElement('div');
+    p.className='petal';
+    p.style.left = Math.random()*100+'%';
+    p.style.setProperty('--drift', (Math.random()*120-60)+'px');
+    p.style.animationDuration = (7+Math.random()*9)+'s';
+    p.style.animationDelay = (Math.random()*8)+'s';
+    p.style.width = p.style.height = (8+Math.random()*10)+'px';
+    p.style.opacity = (0.5+Math.random()*0.4);
+    field.appendChild(p);
+  }
+});
+
+// ---------- Populate sparks ----------
+document.querySelectorAll('.particles').forEach(field=>{
+  const n = parseInt(field.dataset.sparks,10);
+  for(let i=0;i<n;i++){
+    const s = document.createElement('div');
+    s.className='spark';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = 60+Math.random()*35+'%';
+    s.style.animationDuration = (5+Math.random()*5)+'s';
+    s.style.animationDelay = (Math.random()*6)+'s';
+    field.appendChild(s);
+  }
+});
+
+// ---------- Petal layers on rose bloom (page 2) ----------
+const roseBloom = document.getElementById('roseBloom');
+for(let i=0;i<6;i++){
+  const layer = document.createElement('div');
+  layer.className='petal-layer';
+  layer.style.setProperty('--rot', (i*60)+'deg');
+  layer.style.animationDelay = (i*0.12)+'s';
+  layer.style.transform = `rotate(${i*60}deg)`;
+  roseBloom.appendChild(layer);
+}
+
+// ---------- Title letter-by-letter reveal ----------
+const titleEl = document.getElementById('titleLetters');
+const titleText = titleEl.textContent;
+titleEl.textContent='';
+[...titleText].forEach((ch,i)=>{
+  const span = document.createElement('span');
+  span.textContent = ch === ' ' ? '\u00A0' : ch;
+  span.style.animationDelay = (0.25 + i*0.045)+'s';
+  titleEl.appendChild(span);
+});
+
+// ---------- Scroll reveal via IntersectionObserver ----------
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('in-view');
+    }
+  });
+},{threshold:0.18});
+revealEls.forEach(el=>io.observe(el));
+
+// ---------- Promise lines re-trigger on view (page 6) ----------
+const promiseLines = document.querySelectorAll('.promise-line');
+const ioPromise = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting) entry.target.classList.add('in-view');
+  });
+},{threshold:0.4});
+promiseLines.forEach(el=>ioPromise.observe(el));
+
+// ---------- Button navigation ----------
+document.querySelectorAll('.btn[data-next]').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{
+    spawnRipple(e, btn);
+    spawnPetalBurst(btn);
+    const target = document.getElementById(btn.dataset.next);
+    if(target) target.scrollIntoView({behavior:'smooth'});
+  });
+});
+
+function spawnRipple(e, btn){
+  const rect = btn.getBoundingClientRect();
+  const ripple = document.createElement('span');
+  ripple.className='ripple';
+  const size = Math.max(rect.width, rect.height);
+  ripple.style.width = ripple.style.height = size+'px';
+  ripple.style.left = (e.clientX-rect.left-size/2)+'px';
+  ripple.style.top = (e.clientY-rect.top-size/2)+'px';
+  btn.appendChild(ripple);
+  setTimeout(()=>ripple.remove(),700);
+}
+
+function spawnPetalBurst(btn){
+  const rect = btn.getBoundingClientRect();
+  for(let i=0;i<7;i++){
+    const p = document.createElement('div');
+    p.className='mini-petal-burst';
+    const angle = (Math.PI*2*i)/7 + Math.random()*0.4;
+    const dist = 40+Math.random()*30;
+    p.style.setProperty('--bx', Math.cos(angle)*dist+'px');
+    p.style.setProperty('--by', Math.sin(angle)*dist+'px');
+    p.style.left = (rect.width/2)+'px';
+    p.style.top = (rect.height/2)+'px';
+    btn.appendChild(p);
+    setTimeout(()=>p.remove(),750);
+  }
+}
+
+// ---------- Final page: forgive / wait ----------
+const finalMessage = document.getElementById('finalMessage');
+const signature = document.getElementById('signature');
+const yesBtn = document.getElementById('yesBtn');
+const waitBtn = document.getElementById('waitBtn');
+
+yesBtn.addEventListener('click', (e)=>{
+  spawnRipple(e, yesBtn);
+  finalMessage.textContent = 'நீ என் வாழ்க்கையில் நிலா, என்றென்றும் இருக்கணும்.';
+  finalMessage.style.color = 'var(--gold-soft)';
+  signature.classList.add('show');
+  launchConfetti();
+});
+
+waitBtn.addEventListener('click', (e)=>{
+  spawnRipple(e, waitBtn);
+  finalMessage.textContent = 'பரவாயில்லை, நான் காத்திருப்பேன். நீ ரெடியா இருக்கும் வரை.';
+  finalMessage.style.color = 'var(--parchment)';
+  signature.classList.add('show');
+});
+
+function launchConfetti(){
+  const colors = ['#c2185b','#e0457f','#f5c518','#e8c87a','#7a1f3d'];
+  for(let i=0;i<60;i++){
+    const c = document.createElement('div');
+    c.className='confetti-piece';
+    c.style.left = Math.random()*100+'vw';
+    c.style.top = '-5vh';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.setProperty('--cx', (Math.random()*200-100)+'px');
+    c.style.animationDuration = (2.5+Math.random()*2)+'s';
+    c.style.animationDelay = (Math.random()*0.6)+'s';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(), 5200);
+  }
+}
+
+// ---------- Section tag + progress moon ----------
+const sectionNames = {
+  'page-1':'I — Opening',
+  'page-2':'II — The Apology',
+  'page-3':'III — Memories We Made',
+  'page-4':'IV — Why I\'m Sorry',
+  'page-5':'V — What You Mean To Me',
+  'page-6':'VI — My Promise',
+  'page-7':'VII — A Letter For You',
+  'page-8':'VIII — Forgiveness'
+};
+const sectionTag = document.getElementById('sectionTag');
+const moonFill = document.getElementById('moonFill');
+const allPages = document.querySelectorAll('section.page');
+
+const ioSection = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting && entry.intersectionRatio > 0.5){
+      sectionTag.textContent = sectionNames[entry.target.id] || '';
+    }
+  });
+},{threshold:[0.5]});
+allPages.forEach(p=>ioSection.observe(p));
+
+const scrollContainer = document.getElementById('scrollContainer');
+scrollContainer.addEventListener('scroll', ()=>{
+  const progress = scrollContainer.scrollTop / (scrollContainer.scrollHeight - scrollContainer.clientHeight);
+  const r = 13;
+  // shrink the dark mask circle radius based on progress -> moon "fills"
+  const offset = (1-progress) * 2 * Math.PI * r;
+  moonFill.style.opacity = 0.4 + progress*0.5;
+});
+
+// ---------- Music toggle (visual only, no audio asset) ----------
+const musicToggle = document.getElementById('musicToggle');
+musicToggle.addEventListener('click', ()=>{
+  musicToggle.classList.toggle('muted');
+});
+
+// ---------- Desktop cursor petal trail ----------
+if(window.matchMedia('(hover: hover) and (pointer: fine)').matches){
+  let lastTrail = 0;
+  document.addEventListener('mousemove', (e)=>{
+    const now = Date.now();
+    if(now - lastTrail < 90) return;
+    lastTrail = now;
+    const trail = document.createElement('div');
+    trail.style.position='fixed';
+    trail.style.left = e.clientX+'px';
+    trail.style.top = e.clientY+'px';
+    trail.style.width='6px';
+    trail.style.height='6px';
+    trail.style.borderRadius='0% 70% 0% 70%';
+    trail.style.background='rgba(194,24,91,0.55)';
+    trail.style.pointerEvents='none';
+    trail.style.zIndex='150';
+    trail.style.transition='opacity 0.8s, transform 0.8s';
+    document.body.appendChild(trail);
+    requestAnimationFrame(()=>{
+      trail.style.opacity='0';
+      trail.style.transform='translateY(18px) scale(0.4)';
+    });
+    setTimeout(()=>trail.remove(),850);
+  });
+}
+</script>
+</body>
+</html>
